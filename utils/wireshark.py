@@ -1,4 +1,5 @@
 import logging
+import traceback
 import os
 import re
 import string
@@ -898,7 +899,7 @@ def import_pcap_as_dataframe(
 
         for idx, file in enumerate(pcap_files):
             if os.path.exists(file):
-                pdml_file = call_wireshark(wireshark_version, file, http2_ports)
+                pdml_file = call_wireshark(wireshark_version, "", file, http2_ports)
                 packet_descriptions = import_pdml(pdml_file, diagrams_to_output='raw', debug=debug)
                 packets_df = pd.DataFrame(packet_descriptions,
                                           columns=['ip_src', 'ip_dst', 'frame_number', 'protocol', 'msg_description',
@@ -922,6 +923,7 @@ def import_pcap_as_dataframe(
         packets_df = pd.concat(packets_df_list, ignore_index=True)
         return packets_df
     except:
+        traceback.print_exc() 
         return None
     finally:
         application_logger.setLevel(current_verbosity_level)
