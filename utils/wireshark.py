@@ -205,7 +205,7 @@ def call_wireshark_for_one_version(
         ])
 
     logging.debug('Generating PDML files from PCAP to {0}'.format(output_file))
-    logging.debug(tshark_command)
+    logging.debug(' '.join(tshark_command))
 
     if check_if_exists:
         if os.path.exists(output_file):

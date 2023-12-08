@@ -5,6 +5,7 @@ from enum import Enum
 from typing import NamedTuple
 from xml.etree import ElementTree as ET
 
+show_fields = ["ngap.NRCellIdentity", "ngap.pLMNIdentity", "e212.nrcgi.mcc", "e212.nrcgi.mnc", "e212.mcc", "e212.mnc", "ngap.gNB_ID", "ngap.RANNodeName", "ngap.tAC", "ngap.sST", "ngap.sD"]
 
 def xml2json(root: xml.etree.ElementTree.Element) -> dict:
     """
@@ -23,6 +24,7 @@ def xml2json(root: xml.etree.ElementTree.Element) -> dict:
         child_name_counter = {}
         for child in children_list:
             child_name = child.attrib["name"]
+
             # logging.debug(f'Element name: {child_name}')
             # Avoid '' child name if possible
             if child_name == '' and 'show' in child.attrib:
@@ -62,20 +64,21 @@ def xml2json(root: xml.etree.ElementTree.Element) -> dict:
 
                 out[child_name].append(data_to_append)
             else:
-                try:
-                    if 'showname' in child.attrib:
-                        field_content = child.attrib["showname"]
-                    elif 'show' in child.attrib:
-                        field_content = child.attrib["show"]
-                    else:
-                        field_content = ''
+                if child_name in show_fields:
+                    try:
+                        if 'showname' in child.attrib:
+                            field_content = child.attrib["showname"]
+                        elif 'show' in child.attrib:
+                            field_content = child.attrib["show"]
+                        else:
+                            field_content = ''
 
-                    out[child_name] = field_content
-                except:
-                    logging.debug('ERROR: could not find "showname" attribute for following element')
-                    child_str = ET.tostring(child)
-                    logging.debug(child_str)
-                    out[child_name] = 'ERROR'
+                        out[child_name] = field_content
+                    except:
+                        logging.debug('ERROR: could not find "showname" attribute for following element')
+                        child_str = ET.tostring(child)
+                        logging.debug(child_str)
+                        out[child_name] = 'ERROR'
         return out
 
     parsed_tree = recursiv(root)
